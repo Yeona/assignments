@@ -1,0 +1,516 @@
+<h1 id="week-5-css-architecture-frameworks">Week 5: CSS Architecture &amp; Frameworks</h1>
+<p>Replicating visual designs perfectly in code is just one side and challenge of writing CSS. As you begin to write CSS for larger sites and applications, additional considerations need to be taken in to account, including:</p>
+<ul>
+<li>Is the code readable/understandable?</li>
+<li>Is the code easy to change or extend?</li>
+<li>Is the code well decoupled?</li>
+<li>Will the code scale?</li>
+</ul>
+<p>By focusing on good CSS architecture, we can answer yes to the above questions and have confidence that our code will stand the test of time.</p>
+<p><strong>Table of Contents</strong></p>
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+<ul>
+<li><a href="#structuring-your-stylesheets">Structuring your stylesheets</a><ul>
+<li><a href="#folder-structure">Folder structure</a><ul>
+<li><a href="#base">Base</a></li>
+<li><a href="#layout">Layout</a></li>
+<li><a href="#modules">Modules</a></li>
+<li><a href="#pages">Pages</a></li>
+</ul>
+</li>
+<li><a href="#connecting-them-all-together">Connecting them all together</a></li>
+</ul>
+</li>
+<li><a href="#general-guidelines-for-css-architecture">General guidelines for CSS architecture:</a></li>
+<li><a href="#resources">Resources</a></li>
+<li><a href="#css-frameworks">CSS Frameworks</a><ul>
+<li><a href="#grids">Grids</a><ul>
+<li><a href="#container">Container</a></li>
+<li><a href="#rows">Rows</a></li>
+<li><a href="#columns">Columns</a><ul>
+<li><a href="#column-widths">Column widths</a></li>
+<li><a href="#column-gutters">Column gutters</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#responsive-grids">Responsive grids</a><ul>
+<li><a href="#our-complete-grid">Our complete grid</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#homework">Homework</a></li>
+</ul>
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+<h2 id="structuring-your-stylesheets">Structuring your stylesheets</h2>
+<p>One of the nice things about Sass is that it allows for a more sophisticated project structure than CSS out-of-the-box. Sass extends the <a href="http://sass-lang.com/documentation/file.SASS_REFERENCE.html#import"><code>@import</code></a> rule to allow import of SCSS and Sass files. Unlike the normal <code>@import</code> rule, in Sass, the imported files will be merged into a single CSS output file.</p>
+<p>So lets take a look at how we can use Sass &amp; <code>@import</code> to structure our project:</p>
+<h3 id="folder-structure">Folder structure</h3>
+<p>First thing is to setup your folder structure; we&#39;ll explain what each of these mean here shortly.</p>
+<pre><code>styles/
+|
+|-- base/
+|-- layout/
+|-- modules/
+|-- pages/
+|   
+|-- reset.css
+|-- style.css
+|-- style.css.map
+|-- style.scss
+</code></pre><p>As we move through each section, we&#39;ll create a partial <code>.scss</code> file, with just the styles we need, and then in the end, we&#39;ll include them all back together.</p>
+<h4 id="base">Base</h4>
+<p><code>base/</code> is where all of your foundational styling is going to go. Typically in this folder, you&#39;ll find a reset, typography styles, and handy sass utilities like variables, functions, and mixins.</p>
+<p>Let&#39;s move our <code>reset.css</code> in to our <code>base/</code> and then rename it <code>_reset.scss</code> (we&#39;ll explain what the underscore at the beginning here means at the end). Let&#39;s also go ahead and remove it from our HTML.</p>
+<p>Create a new file called <code>_utilities.scss</code> and move all of the variables and @mixins (not <code>@extend</code>) from <code>style.scss</code> here.</p>
+<p>Now our folder structure should look like this:</p>
+<pre><code>styles/
+|
+|-- base/
+|   |-- _reset.scss
+|   |-- _utilities.scss
+|
+|-- layout/
+|-- modules/
+|-- pages/
+|   
+|-- style.css
+|-- style.css.map
+|-- style.scss
+</code></pre><p>Specifically, the new files we added were:</p>
+<ul>
+<li><code>_reset.scss</code></li>
+<li><code>_utilities.scss</code></li>
+</ul>
+<h4 id="layout">Layout</h4>
+<p>The <code>layout/</code> directory (sometimes called <code>partials</code>) is where the styles for our large sections of layout <em>which are shared across the site</em> will go. This is where our grid as well as the common areas live, like our header, footer, etc.</p>
+<p>Let&#39;s create the following files and move our styles from <code>style.scss</code> to their respective place:</p>
+<ul>
+<li><code>_header.scss</code></li>
+<li><code>_footer.scss</code></li>
+<li><code>_grid.scss</code></li>
+</ul>
+<p><em>(We haven&#39;t created a grid yet, so for now we can just move our <code>.container</code> class in to it)</em></p>
+<p>Now our folder structure should look like this:</p>
+<pre><code>styles/
+|
+|-- base/
+|   |-- _reset.scss
+|   |-- _utilities.scss
+|
+|-- layout/
+|   |-- _header.scss
+|   |-- _footer.scss
+|   |-- _grid.scss
+|
+|-- modules/
+|-- pages/
+|   
+|-- style.css
+|-- style.css.map
+|-- style.scss
+</code></pre><p>Our <code>style.scss</code> should also be getting smaller...</p>
+<h4 id="modules">Modules</h4>
+<p>The <code>modules/</code> directory (sometimes called <code>components/</code>) is for the smaller portions of the design which make up the major layout sections. While <code>layout/</code> is kind of <em>macro</em> (defining the global wireframe), <code>modules/</code> is more <em>micro</em>. This is usually where most of the files live, since your whole site <em>should</em> be made up of small modules.</p>
+<p>For our site, let&#39;s create the following modules and move their respective styles in to it from the <code>style.scss</code>:</p>
+<ul>
+<li><code>_hero.scss</code></li>
+<li><code>_search-bar.scss</code></li>
+<li><code>_site-info.scss</code></li>
+</ul>
+<p>Now our folder structure should look like this:</p>
+<pre><code>styles/
+|
+|-- base/
+|   |-- _reset.scss
+|   |-- _utilities.scss
+|
+|-- layout/
+|   |-- _header.scss
+|   |-- _footer.scss
+|   |-- _grid.scss
+|
+|-- modules/
+|   |-- _hero.scss
+|   |-- _search-bar.scss
+|   |-- _site-info.scss
+|   
+|-- pages/
+|
+|-- style.css
+|-- style.css.map
+|-- style.scss
+</code></pre><p>...and our <code>style.scss</code> should be empty now, but there is still one more folder to share.</p>
+<h4 id="pages">Pages</h4>
+<p>The <code>pages/</code> folder is where all of the page specific styles go that don&#39;t make up the <code>layout/</code> or belong to a <code>module</code>.</p>
+<p>Since we&#39;re only working with a single page HTML/CSS wirefame, we don&#39;t have any traditional &quot;page&quot; types styles yet, but as we go on, we&#39;ll need to setup styles that are unique for certain pages, ie. the home page. We would do that with the following:</p>
+<ul>
+<li><code>_home.scss</code></li>
+</ul>
+<h3 id="connecting-them-all-together">Connecting them all together</h3>
+<p>Since we broke everything out in to separate files, our <code>style.scss</code> (and subsequently our <code>style.css</code>) is completely blank. This is where Sass&#39;s import comes in:</p>
+<p><strong>styles/style.scss</strong></p>
+<pre><code class="lang-scss">// Base
+@import &quot;base/reset&quot;;
+@import &quot;base/utilities&quot;;
+
+// Layout
+@import &quot;layout/header&quot;;
+@import &quot;layout/footer&quot;;
+@import &quot;layout/grid&quot;;
+// ...
+
+// Modules
+@import &quot;modules/hero&quot;;
+@import &quot;modules/search-bar&quot;;
+@import &quot;modules/site-info&quot;;
+
+// Pages
+// ...
+</code></pre>
+<p>You&#39;ll notice that we didn&#39;t have to include the <code>_</code> or the <code>.scss</code> extension; this is because Sass is smart enough to know just by looking at the file.</p>
+<p>By giving the files a underscore (<code>_</code>) at the beginning of their name, Sass knew to only import the stylesheet in to another. However since we didn&#39;t give our <code>style.scss</code> an <code>_</code>, Sass also knew to go ahead and read the file, import everything and then compile it in to a final <code>style.css</code> file.</p>
+<p>Now we&#39;re ready to grow our CSS with our site! However, this is simply one recommendation for structuring based on research and personal experience, however there are other techniques you may read about online which I encourage you to try.</p>
+<h2 id="general-guidelines-for-css-architecture-">General guidelines for CSS architecture:</h2>
+<ul>
+<li>Use an underscore (<code>_</code>) if you plan to <code>@import</code> the file in to another stylesheet</li>
+<li>If a file starts to get longer than 200 lines, consider splitting it in to smaller chunks.<ul>
+<li><strong>Ex 1:</strong> if you notice your <code>_header.scss</code> is growing, you can break out the styles in to a <code>_navigation.scss</code> file</li>
+<li><strong>Ex 2:</strong> if you find that your utilities is growing, you can split them up in to separate <code>_variables.scss</code>, <code>_mixins.scss</code>,
+<code>_functions.scss</code>, etc.</li>
+</ul>
+</li>
+<li>If you can&#39;t figure out where a style should go, ie. <em>&quot;Does it belong in a layout, module or page style&quot;</em>, just ask yourself if you ever plan to reuse that style anywhere else on the site:<ul>
+<li>used multiple times + a big section == <code>layout/</code></li>
+<li>used multiple times + smaller section == <code>module/</code></li>
+<li>only used for one page, no matter the size == <code>pages/</code></li>
+</ul>
+</li>
+<li>If you are including files from other sources, ie. <code>animate.scss</code>, you can add a <code>vendor/</code> directory to organize code from vendor sources.</li>
+</ul>
+<h2 id="resources">Resources</h2>
+<ul>
+<li><a href="http://thesassway.com/beginner/how-to-structure-a-sass-project">How to structure a Sass project</a></li>
+<li><a href="http://www.sitepoint.com/architecture-sass-project/">Sitepoint: Architecture for a Sass Project</a></li>
+</ul>
+<h2 id="css-frameworks">CSS Frameworks</h2>
+<p>When developing websites, especially in the early stages of prototyping, it can be helpful to reuse code to solve common problems.</p>
+<blockquote>
+<p>“[Framework is] a set of tools, libraries, conventions, and best practices that attempt to <strong>abstract routine tasks into generic modules that can be reused</strong>. The goal here is to allow the designer or developer to focus on tasks that are unique to a given project, rather than reinventing the wheel each time around.” [<a href="http://www.alistapart.com/articles/frameworksfordesigners">Framework For Designers</a>, by <em>Jeff Croft</em>] </p>
+</blockquote>
+<p>While popular frameworks like <a href="http://foundation.zurb.com">Foundation</a> and <a href="http://getbootstrap.com">Bootstrap</a> are a great base, they have their own generic design opinion and may not match your own particular coding style. A few reasons why creating your own custom framework is a good idea:</p>
+<ul>
+<li>Increase your productivity and avoid common mistakes.</li>
+<li>Develop a common set of styles which match more closely to your own design style. </li>
+<li>Tailor specific CSS to your needs. If you need specific elements (like footers, widgets, comments, feeds etc.), style your own commonly used web elements</li>
+<li>Write minimal-to-no code while prototyping; write only unique code while developing</li>
+</ul>
+<p>At a hight level, the basic building blocks involved in a CSS framework are:</p>
+<ul>
+<li>Grid</li>
+<li>Typography</li>
+<li>Base layout</li>
+<li>Form elements &amp; controls</li>
+</ul>
+<p>We can always add more styles to our framework, but this is a good place to start.</p>
+<h3 id="grids">Grids</h3>
+<p>The first and most important part of creating your own framework is developing a grid. Grids help us establish a consistent rhythm and create proper proportions throughout our design.</p>
+<p>CSS grids contain a few common elements which should look and feel familiar:</p>
+<p><img src="images/basic-grid.png" alt="basic grid"></p>
+<p>A CSS grid contains the following components, similar to a print grid:</p>
+<ul>
+<li>container</li>
+<li>rows</li>
+<li>columns</li>
+<li>gutters (space inbetween columns)</li>
+</ul>
+<h4 id="container">Container</h4>
+<p>Grids start with a wrapping container, which we already have. Below are the changes we need to make:</p>
+<p><strong>layouts/_grid.scss</strong></p>
+<pre><code class="lang-scss">.container {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+
+  * {
+    box-sizing: border-box;
+  }
+}
+</code></pre>
+<p>We&#39;re essentially saying that our grid should be 100% width on screens equal to or less than 960px.</p>
+<h4 id="rows">Rows</h4>
+<p>A row is essentially our container for columns and structuring vertical rhythm on the page. We&#39;ll be floating our columns, so we need to make sure that our rows are cleared (using our clearfix mixin).</p>
+<pre><code class="lang-scss">.row {
+  @include cf;
+}
+</code></pre>
+<h4 id="columns">Columns</h4>
+<p>Columns are the tricky part! While there are many ways to position things in CSS, the <code>float</code> property is actually the most straight-forward and bulletproof way of creating column layouts.</p>
+<pre><code class="lang-css">[class^=&#39;col-&#39;] {
+  float: left;
+  min-height: 1px; 
+}
+</code></pre>
+<p>That fancy selector up there is known as an <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors"><em>attribute selector</em></a>, and it essentially lets us style elements in CSS using more sophisticated targeting. Here we are saying <em>&quot;style any element with a class name that <strong>starts with</strong> <code>col-</code>&quot;</em>. That naming structure will make sense here shortly.</p>
+<p>We also want to give our columns a <code>min-height: 1px</code> so they don&#39;t overlap if there is no content.</p>
+<h5 id="column-widths">Column widths</h5>
+<p>Column widths can be calculated using some basic math. Since our <code>.container</code> has a <code>width: 100%</code>, then our column classes are just <strong>100 divided by the number of columns</strong>. We&#39;re going to start with a 12 column grid and use Sass to generate our grid columns widths automatically.</p>
+<pre><code class="lang-scss">@for $i from 1 through 12 {
+  .col-#{$i} { 
+    width: 100% / $i; 
+  }
+}
+</code></pre>
+<p>That fancy piece of code up there is called a <em>&quot;for loop&quot;</em> using Sass&#39;s <a href="http://sass-lang.com/documentation/file.SASS_REFERENCE.html#_10"><code>@for</code> directive</a>. What it does is repeat the code inside the outer brackets as many times as the number after &quot;through&quot;. Let&#39;s see what it outputs:</p>
+<pre><code class="lang-css">
+
+.col-1 {
+  width: 100%;
+}
+
+.col-2 {
+  width: 50%;
+}
+
+.col-3 {
+  width: 33.33333%;
+}
+
+.col-4 {
+  width: 25%;
+}
+
+.col-5 {
+  width: 20%;
+}
+
+.col-6 {
+  width: 16.66667%;
+}
+
+.col-7 {
+  width: 14.28571%;
+}
+
+.col-8 {
+  width: 12.5%;
+}
+
+.col-9 {
+  width: 11.11111%;
+}
+
+.col-10 {
+  width: 10%;
+}
+
+.col-11 {
+  width: 9.09091%;
+}
+
+.col-12 {
+  width: 8.33333%;
+}
+</code></pre>
+<p><strong>So how did that work?</strong></p>
+<p>In our <code>@for</code> loop, <code>$i</code> represents the current number in the loop, so each time it loops, it increments the current number, and we can use that to give our columns class names a unique postfix and within our math expression to create the appropriate grid widths. Pretty awesome right?!</p>
+<h5 id="column-gutters">Column gutters</h5>
+<p>This is where <code>box-sizing: border-box</code> is extremely helpful. Since the <code>border-box</code> setting means that our padding will not affect the width, we can add padding to our main <code>.col-</code> class and everything should remain intact.</p>
+<pre><code class="lang-css">[class^=&#39;col-&#39;] {
+  float: left;
+  min-height: 1px; 
+  padding: 0 1em;
+}
+</code></pre>
+<p>This almost perfect, except are columns technically don&#39;t reach the edge, so our layout <em>appears</em> <code>940px</code> wide instead of <code>960px</code>.</p>
+<p><img src="images/basic-grid-2.png" alt="basic grid 2"></p>
+<p>We just need to do a little bit of CSS magic to get our layout to render as expected.</p>
+<pre><code class="lang-scss">.row {
+  margin-left: -1em;
+  margin-right: -1em;
+  @include cf;
+}
+</code></pre>
+<p>The negative margins on the parent row will counteract the left padding and right padding of the first and last column, respectively.</p>
+<p><img src="images/basic-grid-3.png" alt="basic grid 3"></p>
+<p><strong>Now we have a basic grid:</strong></p>
+<p><strong>grid.html</strong></p>
+<pre><code class="lang-html">&lt;div class=&quot;container&quot;&gt;
+  &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-1&quot;&gt;1&lt;/div&gt;  
+    &lt;/div&gt; 
+    &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-2&quot;&gt;2&lt;/div&gt; 
+        &lt;div class=&quot;col-2&quot;&gt;2&lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-3&quot;&gt;3&lt;/div&gt; 
+        &lt;div class=&quot;col-3&quot;&gt;3&lt;/div&gt; 
+        &lt;div class=&quot;col-3&quot;&gt;3&lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-4&quot;&gt;4&lt;/div&gt; 
+        &lt;div class=&quot;col-4&quot;&gt;4&lt;/div&gt; 
+        &lt;div class=&quot;col-4&quot;&gt;4&lt;/div&gt; 
+        &lt;div class=&quot;col-4&quot;&gt;4&lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-5&quot;&gt;5&lt;/div&gt; 
+        &lt;div class=&quot;col-5&quot;&gt;5&lt;/div&gt; 
+        &lt;div class=&quot;col-5&quot;&gt;5&lt;/div&gt; 
+        &lt;div class=&quot;col-5&quot;&gt;5&lt;/div&gt; 
+        &lt;div class=&quot;col-5&quot;&gt;5&lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-6&quot;&gt;6&lt;/div&gt; 
+        &lt;div class=&quot;col-6&quot;&gt;6&lt;/div&gt; 
+        &lt;div class=&quot;col-6&quot;&gt;6&lt;/div&gt; 
+        &lt;div class=&quot;col-6&quot;&gt;6&lt;/div&gt; 
+        &lt;div class=&quot;col-6&quot;&gt;6&lt;/div&gt;
+        &lt;div class=&quot;col-6&quot;&gt;6&lt;/div&gt;
+    &lt;/div&gt;  
+    &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-7&quot;&gt;7&lt;/div&gt; 
+        &lt;div class=&quot;col-7&quot;&gt;7&lt;/div&gt; 
+        &lt;div class=&quot;col-7&quot;&gt;7&lt;/div&gt; 
+        &lt;div class=&quot;col-7&quot;&gt;7&lt;/div&gt; 
+        &lt;div class=&quot;col-7&quot;&gt;7&lt;/div&gt;
+        &lt;div class=&quot;col-7&quot;&gt;7&lt;/div&gt; 
+        &lt;div class=&quot;col-7&quot;&gt;7&lt;/div&gt; 
+    &lt;/div&gt;
+    &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-8&quot;&gt;8&lt;/div&gt; 
+        &lt;div class=&quot;col-8&quot;&gt;8&lt;/div&gt; 
+        &lt;div class=&quot;col-8&quot;&gt;8&lt;/div&gt; 
+        &lt;div class=&quot;col-8&quot;&gt;8&lt;/div&gt; 
+        &lt;div class=&quot;col-8&quot;&gt;8&lt;/div&gt;
+        &lt;div class=&quot;col-8&quot;&gt;8&lt;/div&gt; 
+        &lt;div class=&quot;col-8&quot;&gt;8&lt;/div&gt; 
+        &lt;div class=&quot;col-8&quot;&gt;8&lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-9&quot;&gt;9&lt;/div&gt; 
+        &lt;div class=&quot;col-9&quot;&gt;9&lt;/div&gt; 
+        &lt;div class=&quot;col-9&quot;&gt;9&lt;/div&gt; 
+        &lt;div class=&quot;col-9&quot;&gt;9&lt;/div&gt; 
+        &lt;div class=&quot;col-9&quot;&gt;9&lt;/div&gt;
+        &lt;div class=&quot;col-9&quot;&gt;9&lt;/div&gt; 
+        &lt;div class=&quot;col-9&quot;&gt;9&lt;/div&gt; 
+        &lt;div class=&quot;col-9&quot;&gt;9&lt;/div&gt; 
+        &lt;div class=&quot;col-9&quot;&gt;9&lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-10&quot;&gt;10&lt;/div&gt; 
+        &lt;div class=&quot;col-10&quot;&gt;10&lt;/div&gt; 
+        &lt;div class=&quot;col-10&quot;&gt;10&lt;/div&gt; 
+        &lt;div class=&quot;col-10&quot;&gt;10&lt;/div&gt; 
+        &lt;div class=&quot;col-10&quot;&gt;10&lt;/div&gt;
+        &lt;div class=&quot;col-10&quot;&gt;10&lt;/div&gt; 
+        &lt;div class=&quot;col-10&quot;&gt;10&lt;/div&gt; 
+        &lt;div class=&quot;col-10&quot;&gt;10&lt;/div&gt; 
+        &lt;div class=&quot;col-10&quot;&gt;10&lt;/div&gt; 
+        &lt;div class=&quot;col-10&quot;&gt;10&lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-11&quot;&gt;11&lt;/div&gt; 
+        &lt;div class=&quot;col-11&quot;&gt;11&lt;/div&gt; 
+        &lt;div class=&quot;col-11&quot;&gt;11&lt;/div&gt; 
+        &lt;div class=&quot;col-11&quot;&gt;11&lt;/div&gt; 
+        &lt;div class=&quot;col-11&quot;&gt;11&lt;/div&gt;
+        &lt;div class=&quot;col-11&quot;&gt;11&lt;/div&gt; 
+        &lt;div class=&quot;col-11&quot;&gt;11&lt;/div&gt; 
+        &lt;div class=&quot;col-11&quot;&gt;11&lt;/div&gt; 
+        &lt;div class=&quot;col-11&quot;&gt;11&lt;/div&gt; 
+        &lt;div class=&quot;col-11&quot;&gt;11&lt;/div&gt; 
+        &lt;div class=&quot;col-11&quot;&gt;11&lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-12&quot;&gt;12&lt;/div&gt; 
+        &lt;div class=&quot;col-12&quot;&gt;12&lt;/div&gt; 
+        &lt;div class=&quot;col-12&quot;&gt;12&lt;/div&gt; 
+        &lt;div class=&quot;col-12&quot;&gt;12&lt;/div&gt;
+        &lt;div class=&quot;col-12&quot;&gt;12&lt;/div&gt; 
+        &lt;div class=&quot;col-12&quot;&gt;12&lt;/div&gt; 
+        &lt;div class=&quot;col-12&quot;&gt;12&lt;/div&gt; 
+        &lt;div class=&quot;col-12&quot;&gt;12&lt;/div&gt; 
+        &lt;div class=&quot;col-12&quot;&gt;12&lt;/div&gt; 
+        &lt;div class=&quot;col-12&quot;&gt;12&lt;/div&gt;
+        &lt;div class=&quot;col-12&quot;&gt;12&lt;/div&gt; 
+        &lt;div class=&quot;col-12&quot;&gt;12&lt;/div&gt; 
+    &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p>Now that we have our grid, let&#39;s make it responsive!</p>
+<h3 id="responsive-grids">Responsive grids</h3>
+<p>Now that we have our grid, making it accommodate smaller screens is relatively simple and straightforward from here. For simplicity, general best practice for smaller screens is to make your columns <code>width: 100%;</code> and to stack them up:</p>
+<pre><code class="lang-scss">[class^=&#39;col-&#39;] {
+  width: 100%;
+  float: left;
+  min-height: 1px; 
+  padding: 0 1em;
+}
+
+@for $i from 1 through 12 {
+  .col-#{$i} { 
+    @media screen and (min-width: 600px){
+      width: 100% / $i; 
+    }
+  }
+}
+</code></pre>
+<p><strong>What&#39;s going on here?</strong></p>
+<p>The first thing we did is give all elements matching the <code>.col-</code> class name scheme a <code>width: 100;</code>. This gives us the styling we need, but we only want it to apply when we&#39;re on small screens. In our <code>@for</code> loop, we&#39;ve wrapped our width styles in a media query that is applied on screens <strong>larger than 600px width</strong>. </p>
+<p>So... if the screen size is less than 600px, our columns are 100% width; anything larger than 600px gets our specific <code>.col-</code> class width sizes.</p>
+<h4 id="our-complete-grid">Our complete grid</h4>
+<p><strong>layouts/_grid.scss</strong></p>
+<pre><code class="lang-scss">.container {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.row {
+  margin-left: -1em;
+  margin-right: -1em;
+  @include cf;
+}
+
+[class^=&quot;col-&quot;] {
+  width: 100%;
+  float: left;
+  min-height: 1px; 
+  padding: 0 1em;
+}
+
+@for $i from 1 through 12 {
+  .col-#{$i} { 
+    @media screen and (min-width: 600px){
+      width: 100% / $i; 
+    }
+  }
+}
+</code></pre>
+<h2 id="homework">Homework</h2>
+<ul>
+<li>Rename <code>gh-pages</code> to <code>assignment-4</code>. Publish the <code>assignment-4</code> branch. Switch back to the <code>gh-pages</code> branch. <em>(We&#39;re simply making a copy of <code>gh-pages</code> so we can keep working on it, but go back to the previous version if we need)</em></li>
+</ul>
+<p><img src="../week-4/images/github-1.png" alt="Github 1"></p>
+<ul>
+<li>Structure your existing SCSS following the class guide</li>
+<li>Make commits to save your changes and sync with your GitHub account online once you are complete</li>
+<li>Add the link to your assignment site on your GitHub repo pages</li>
+</ul>
+<p><img src="../week-4/images/github-2.png" alt="Github 2"></p>
+<ul>
+<li><p>Create a pull request with the title <code>NMA Bot - Assignment 4: CSS Architecture</code> (replacing <em>NMA Bot</em> with your name) to turn in your project by 11:59pm Monday night.</p>
+<ul>
+<li>Make sure to mention atleast two people in your pull request; try to finish early enough so you can give other students enough time to review your work, not at the last minute.</li>
+<li><p>Adding the link to your assignment site in your pull request description will help your classmates review your work in the browser easier.</p>
+</li>
+<li><p>The assignment will use the following grading requirements: site should include <code>base/</code>, <code>layout/</code>, <code>modules/</code>, and <code>pages/</code> directories with atleast one example of a sass file in each. Your main <code>style.scss</code> file should include multiple imports, and the final output <code>style.css</code> should be relatively similar to the previous homework, barring file reordering.</p>
+</li>
+</ul>
+</li>
+</ul>
