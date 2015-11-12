@@ -1,15 +1,19 @@
-var myName
-var student_1
-var student_2
-var student_3
-var student_4
-var student_5
-var student_6
-var student_7
-var student_8
-var student_9
-var student_10 
+var myName = 'Jae';
 
-var intro = "Hello world, my name is"
+var student_1 = 'Volha';
+var student_2 = 'Hyeela';
+var student_3 = 'Sam';
+var student_4 = 'Sasha';
+var student_5 = 'mouyng';
+var student_6 = 'Yoshi';
+var student_7 = 'Mayu';
+var student_8 = 'Mark';
+var student_9 = 'kalena';
+var student_10 = 'Jae';
 
-var studentStatus = "is a current student"
+var intro = "Hello world, my name is ";
+
+var studentStatus = " is a current student";
+
+console.log(intro + myName);
+console.log(student_1 + studentStatus);
