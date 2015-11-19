@@ -1,6 +1,6 @@
 /*
  * 1.
- * Below are 2 "classroom" arrays, 
+ * Below are 2 "classroom" arrays,
  * containing individual student objects
  * with name and attendance properties.
  */
@@ -53,8 +53,8 @@ var class_2 = [
 
 /*
  * 2.
- * Below is our student status message 
- * that we need to display in the console 
+ * Below is our student status message
+ * that we need to display in the console
  */
 var studentStatus = ' is here today in class.';
 
@@ -62,21 +62,25 @@ var studentStatus = ' is here today in class.';
  * 3.
  * Below is a function (set of instructions)
  * to display each student's attendance from a class
- * 
+ *
  * Complete the missing pieces of the function
  * so it will ouput each student from a class array
- * to the JavaScript console ONLY if they are 
+ * to the JavaScript console ONLY if they are
  * present today (ie. attendedToday === true)
  */
-function displayClassAttendance(){
-
+function displayClassAttendance(class_array){
+  for (var i = 0; i < class_array.length; i++){
+    if(class_array[i].attendedToday === true){
+  console.log(class_array[i].name + studentStatus);
+  }
 }
-
+}
 /*
  * 4.
  * Call your function run the functionality
  * you just created. Remember, you have more than
- * on classroom (array), so you'll need to run 
+ * on classroom (array), so you'll need to run
  * your function for each classroom.
  */
-displayClassAttendance();
+displayClassAttendance(class_1);
+displayClassAttendance(class_2);
